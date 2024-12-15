@@ -1,3 +1,5 @@
+# UPDATE .ENV FILE FOR YOUR OWN TURSO TEST DATABASE
+
 # Astro Starter Kit: Blog
 
 ```sh
