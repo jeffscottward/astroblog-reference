@@ -1,0 +1,58 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { db, Comment, Author } from "astro:db";
+const comments = await db.select().from(Comment);
+
+if (Astro.request.method === "POST") {
+  // Parse form data
+  const formData = await Astro.request.formData();
+  const author = formData.get("author")?.toString() || "";
+  const body = formData.get("body")?.toString() || "";
+  if (typeof author === "string" && typeof body === "string") {
+    // Insert form data into the Comment table
+    await db.insert(Comment).values({
+      author,
+      body,
+      authorId: 1, // Default author ID
+      likes: 0, // Start with 0 likes
+      flagged: false, // Not flagged by default
+      published: new Date(), // Current timestamp
+      metadata: {}, // Empty metadata object
+    });
+  }
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <Header />
+
+    <h2>Comments</h2>
+
+    {
+      comments.map(({ authorId, body }) => (
+        <article>
+          <div>Author: {authorId}</div>
+          <div>{body}</div>
+        </article>
+      ))
+    }
+
+    <form method="post">
+      <label for="author">Author</label>
+      <input type="text" name="author" />
+      <label for="body">Body</label>
+      <input type="text" name="body" />
+      <button type="submit">Submit</button>
+    </form>
+
+    <Footer />
+  </body>
+</html>
